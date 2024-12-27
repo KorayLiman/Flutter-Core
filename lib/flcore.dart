@@ -1,8 +1,7 @@
+/// A Core Library for Flutter Applications
+library;
 
-import 'flcore_platform_interface.dart';
-
-class Flcore {
-  Future<String?> getPlatformVersion() {
-    return FlcorePlatform.instance.getPlatformVersion();
-  }
-}
+export 'src/common/common.dart';
+export 'src/core/core.dart';
+export 'src/utils/utils.dart';
+export 'src/widgets/widgets.dart';
