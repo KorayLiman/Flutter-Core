@@ -397,7 +397,7 @@ final class CoreASTRenderObject extends RenderBox with RelayoutWhenSystemFontsCh
     config
       ..textDirection = textDirection
       ..value = textSpan?.text ?? text ?? ''
-      ..label = semanticsLabel ?? 'CoreAutoSizeText';
+      ..label = semanticsLabel ?? 'FLAutoSizeText';
   }
 
   @override
