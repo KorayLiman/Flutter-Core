@@ -16,12 +16,14 @@ abstract interface class IFLCore {
 /// Core implementation of the package
 final class FLCore implements IFLCore {
   /// Initializes localizations for date formatting
+
+  final _logger = FLLogger();
   @override
   Future<void> initialize() async {
     try {
       await initializeDateFormatting();
     } catch (e) {
-      FLLogger.log(e, color: LogColors.red);
+      _logger.log(e, color: LogColors.red);
       rethrow;
     }
   }

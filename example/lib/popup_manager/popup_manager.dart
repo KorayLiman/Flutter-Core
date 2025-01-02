@@ -168,15 +168,16 @@ class _PopupManagerWidgetState extends State<PopupManagerWidget> {
               child: const Text('Show adaptive date picker'),
               onPressed: () async {
                 final datePickerId = UniqueKey().toString();
-                FLLogger.log(
-                  await popupManager.showAdaptiveDatePicker(
+                debugPrint(
+                  (await popupManager.showAdaptiveDatePicker(
                     context,
                     id: datePickerId,
                     minimumDate: DateTime.now().subtract(5.days),
                     maximumDate: DateTime.now().add(5.days),
                     initialDateTime: DateTime.now(),
                     mode: AdaptiveDatePickerMode.dateAndTime,
-                  ),
+                  ))
+                      ?.toString(),
                 );
               },
             ),

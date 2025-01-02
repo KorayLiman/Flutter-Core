@@ -4,6 +4,8 @@ import 'package:dio/dio.dart';
 import 'package:flcore/flcore.dart';
 
 mixin class RequestLoggerMixin {
+final _logger = FLLogger();
+
   void logRequestInfo({
     required String requestUrl,
     required RequestType type,
@@ -26,7 +28,7 @@ Request Data: ${jsonEncode(data?.toJson(), toEncodable: (Object? unEncodable) =>
 Request DioFormData: ${dioFormData?.fields} ${dioFormData?.files}
 Headers: $headers
 ->->->->->->->->->->->->->->->->->->->->->->->->->->->->->->->->->->->->->->->->->->->->->->->""";
-    FLLogger.log(requestLog, color: LogColors.yellow);
+    _logger.log(requestLog, color: LogColors.yellow);
   }
 
   void logResponseInfo({
@@ -45,7 +47,7 @@ Response Status Code: ${response.statusCode}
 Response Status Message: ${response.statusMessage ?? "null"}
 Response Data: ${jsonEncode(response.data, toEncodable: (Object? unEncodable) => "Unencodable value of type ->${unEncodable.runtimeType}<-")}
 <-<-<-<-<-<-<-<-<-<-<-<-<-<-<-<-<-<-<-<-<-<-<-<-<-<-<-<-<-<-<-<-<-<-<-<-<-<-<-<-<-<-<-""";
-    FLLogger.log(responseLog);
+    _logger.log(responseLog);
   }
 
   void logErrorResponseInfo({required int? statusCode, required Object error, required String requestUrl}) {
@@ -56,6 +58,6 @@ Status Code: $statusCode
 Request Url: $requestUrl
 Error String: $error
 XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX''';
-    FLLogger.log(errorResponseLog, color: LogColors.red);
+    _logger.log(errorResponseLog, color: LogColors.red);
   }
 }
