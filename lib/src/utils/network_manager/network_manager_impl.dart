@@ -61,9 +61,9 @@ abstract class FLNetworkManager with RequestLoggerMixin implements IFLNetworkMan
     void Function(int, int)? onReceiveProgress,
     void Function(int, int)? onSendProgress,
   }) async {
-    final stopwatch = Stopwatch();
+    final startMs = DateTime.now().millisecondsSinceEpoch;
     try {
-      stopwatch.start();
+    
       final mergedHeaders = generateHeaders(path: path)..addAll(headers ?? {});
 
       if (kDebugMode && printLogRequestInfo) logRequestInfo(requestUrl: '${_dio.options.baseUrl}${path.asString}', type: type, data: data, pathSuffix: pathSuffix, headers: mergedHeaders, queryParameters: queryParameters);
@@ -85,10 +85,8 @@ abstract class FLNetworkManager with RequestLoggerMixin implements IFLNetworkMan
         ),
       );
 
-      stopwatch
-        ..stop()
-        ..reset();
-      final responseTimeMilliseconds = stopwatch.elapsedMilliseconds;
+    
+      final responseTimeMilliseconds = DateTime.now().millisecondsSinceEpoch - startMs;
 
       if (kDebugMode && printLogResponseInfo) logResponseInfo(response: response, responseTime: responseTimeMilliseconds, requestUrl: '${_dio.options.baseUrl}${path.asString}');
 
@@ -98,14 +96,9 @@ abstract class FLNetworkManager with RequestLoggerMixin implements IFLNetworkMan
         hasBaseResponse: hasBaseResponse,
       );
     } catch (error) {
-      stopwatch
-        ..stop()
-        ..reset();
-
       final statusCode = error is DioException ? error.response?.statusCode : null;
       if (statusCode == 401) onUnauthorized(error as DioException);
       if (statusCode == 503) onServiceUnavailable(error as DioException);
-
       if (kDebugMode && printLogErrorResponseInfo) logErrorResponseInfo(statusCode: statusCode, error: error, requestUrl: '${_dio.options.baseUrl}${path.asString}');
       return getErrorResponse<T>(error: error);
     }
@@ -130,9 +123,9 @@ abstract class FLNetworkManager with RequestLoggerMixin implements IFLNetworkMan
     void Function(int, int)? onReceiveProgress,
     void Function(int, int)? onSendProgress,
   }) async {
-    final stopwatch = Stopwatch();
+  final startMs = DateTime.now().millisecondsSinceEpoch;
     try {
-      stopwatch.start();
+     
       final mergedHeaders = generateHeaders(path: path)..addAll(headers ?? {});
 
       if (kDebugMode) {
@@ -155,20 +148,13 @@ abstract class FLNetworkManager with RequestLoggerMixin implements IFLNetworkMan
         ),
       );
 
-      stopwatch
-        ..stop()
-        ..reset();
-      if (kDebugMode) logResponseInfo(response: response, responseTime: stopwatch.elapsedMilliseconds, requestUrl: '${_dio.options.baseUrl}${path.asString}');
+      final responseTimeMilliseconds = DateTime.now().millisecondsSinceEpoch - startMs;
+      if (kDebugMode) logResponseInfo(response: response, responseTime: responseTimeMilliseconds, requestUrl: '${_dio.options.baseUrl}${path.asString}');
       return getSuccessPrimitiveResponse(response: response);
     } catch (error) {
-      stopwatch
-        ..stop()
-        ..reset();
-
       final statusCode = error is DioException ? error.response?.statusCode : null;
       if (statusCode == 401) onUnauthorized(error as DioException);
       if (statusCode == 503) onServiceUnavailable(error as DioException);
-
       if (kDebugMode) logErrorResponseInfo(statusCode: statusCode, error: error, requestUrl: '${_dio.options.baseUrl}${path.asString}');
       return getErrorResponse<T>(error: error);
     }
