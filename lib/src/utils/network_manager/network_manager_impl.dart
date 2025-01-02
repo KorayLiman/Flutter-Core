@@ -1,8 +1,6 @@
 import 'dart:async';
 
-import 'package:dio/dio.dart';
 import 'package:flcore/flcore.dart';
-import 'package:flcore/src/utils/utils.dart';
 import 'package:flutter/foundation.dart';
 
 abstract interface class IFLNetworkManager {
@@ -61,15 +59,15 @@ abstract class FLNetworkManager with RequestLoggerMixin implements IFLNetworkMan
     void Function(int, int)? onReceiveProgress,
     void Function(int, int)? onSendProgress,
   }) async {
-    final startMs = DateTime.now().millisecondsSinceEpoch;
+    final stopwatch = Stopwatch();
     try {
-    
       final mergedHeaders = generateHeaders(path: path)..addAll(headers ?? {});
 
       if (kDebugMode && printLogRequestInfo) logRequestInfo(requestUrl: '${_dio.options.baseUrl}${path.asString}', type: type, data: data, pathSuffix: pathSuffix, headers: mergedHeaders, queryParameters: queryParameters);
 
       _dio.options = _dio.options.copyWith(connectTimeout: connectionTimeout, receiveTimeout: receiveTimeout, sendTimeout: sendTimeout, validateStatus: validateStatus);
 
+      stopwatch.start();
       final response = await _dio.request<Map<String, dynamic>>(
         pathSuffix == null ? path.asString : '${path.asString}$pathSuffix',
         queryParameters: queryParameters?.toJson(),
@@ -85,10 +83,9 @@ abstract class FLNetworkManager with RequestLoggerMixin implements IFLNetworkMan
         ),
       );
 
-    
-      final responseTimeMilliseconds = DateTime.now().millisecondsSinceEpoch - startMs;
-
-      if (kDebugMode && printLogResponseInfo) logResponseInfo(response: response, responseTime: responseTimeMilliseconds, requestUrl: '${_dio.options.baseUrl}${path.asString}');
+      stopwatch.stop();
+      if (kDebugMode && printLogResponseInfo) logResponseInfo(response: response, responseTime: stopwatch.elapsedMilliseconds, requestUrl: '${_dio.options.baseUrl}${path.asString}');
+      stopwatch.reset();
 
       return getSuccessResponse<T, M>(
         response: response,
@@ -96,6 +93,11 @@ abstract class FLNetworkManager with RequestLoggerMixin implements IFLNetworkMan
         hasBaseResponse: hasBaseResponse,
       );
     } catch (error) {
+      if (stopwatch.isRunning) {
+        stopwatch
+          ..stop()
+          ..reset();
+      }
       final statusCode = error is DioException ? error.response?.statusCode : null;
       if (statusCode == 401) onUnauthorized(error as DioException);
       if (statusCode == 503) onServiceUnavailable(error as DioException);
@@ -123,9 +125,8 @@ abstract class FLNetworkManager with RequestLoggerMixin implements IFLNetworkMan
     void Function(int, int)? onReceiveProgress,
     void Function(int, int)? onSendProgress,
   }) async {
-  final startMs = DateTime.now().millisecondsSinceEpoch;
+    final stopwatch = Stopwatch();
     try {
-     
       final mergedHeaders = generateHeaders(path: path)..addAll(headers ?? {});
 
       if (kDebugMode) {
@@ -133,6 +134,7 @@ abstract class FLNetworkManager with RequestLoggerMixin implements IFLNetworkMan
       }
       _dio.options = _dio.options.copyWith(connectTimeout: connectionTimeout, receiveTimeout: receiveTimeout, sendTimeout: sendTimeout, validateStatus: validateStatus);
 
+      stopwatch.start();
       final response = await _dio.request<T>(
         pathSuffix == null ? path.asString : '${path.asString}$pathSuffix',
         queryParameters: queryParameters?.toJson(),
@@ -148,10 +150,16 @@ abstract class FLNetworkManager with RequestLoggerMixin implements IFLNetworkMan
         ),
       );
 
-      final responseTimeMilliseconds = DateTime.now().millisecondsSinceEpoch - startMs;
-      if (kDebugMode) logResponseInfo(response: response, responseTime: responseTimeMilliseconds, requestUrl: '${_dio.options.baseUrl}${path.asString}');
+      stopwatch.stop();
+      if (kDebugMode) logResponseInfo(response: response, responseTime: stopwatch.elapsedMilliseconds, requestUrl: '${_dio.options.baseUrl}${path.asString}');
+      stopwatch.reset();
       return getSuccessPrimitiveResponse(response: response);
     } catch (error) {
+      if (stopwatch.isRunning) {
+        stopwatch
+          ..stop()
+          ..reset();
+      }
       final statusCode = error is DioException ? error.response?.statusCode : null;
       if (statusCode == 401) onUnauthorized(error as DioException);
       if (statusCode == 503) onServiceUnavailable(error as DioException);
