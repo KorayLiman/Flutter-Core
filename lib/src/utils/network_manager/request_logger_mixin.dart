@@ -1,10 +1,9 @@
 import 'dart:convert';
 
-import 'package:dio/dio.dart';
 import 'package:flcore/flcore.dart';
 
 mixin class RequestLoggerMixin {
-final _logger = FLLogger();
+  final _logger = FLLogger();
 
   void logRequestInfo({
     required String requestUrl,
@@ -57,6 +56,7 @@ XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
 Status Code: $statusCode
 Request Url: $requestUrl
 Error String: $error
+Response Data: ${error is DioException ? jsonEncode(error.response?.data, toEncodable: (Object? unEncodable) => "Unencodable value of type ->${unEncodable.runtimeType}<-") : null}
 XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX''';
     _logger.log(errorResponseLog, color: LogColors.red);
   }
